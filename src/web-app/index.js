@@ -4,7 +4,7 @@ const {
   CLIENT_ID, // Auth0 Web App Client
   CLIENT_SECRET, // Auth0 Web App CLient Secret
   RESPONSE_TYPE,
-  AUDIENCE, 
+  AUDIENCE,
   SCOPE,
   SESSION_SECRET, // Cookie Encryption Key
   APP_PORT,
@@ -83,6 +83,20 @@ app.get("/user", requiresAuth(), async (req, res) => {
   });
 });
 
+app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
+  const authorization_details = [{
+    "type": "https://auth0team.atlassian.net/browse/HACK22-44",
+    "transaction_amount": 30 //TODO: Needs to come from the UI...
+  }];
+
+  res.oidc.login({
+    returnTo: '/', //TODO: we should return to a page where we confirm and execute the transaction
+    authorizationParams: {
+      authorization_details: JSON.stringify(authorization_details)
+    },
+  });
+});
+
 app.get("/expenses", requiresAuth(), async (req, res, next) => {
     try {
       if (responseTypesWithToken.includes(RESPONSE_TYPE)) {
@@ -103,7 +117,7 @@ app.get("/expenses", requiresAuth(), async (req, res, next) => {
     } catch (err) {
        next(err);
     }
-}); 
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

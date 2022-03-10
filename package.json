@@ -18,7 +18,8 @@
     "api:start": "npm start --prefix ./src/api",
     "api:dependencies": "npm install --prefix ./src/api",
     "web-app:start": "npm start --prefix ./src/web-app",
-    "web-app:dependencies": "npm install --prefix ./src/web-app"
+    "web-app:dependencies": "npm install --prefix ./src/web-app",
+    "postinstall": "npm run api:dependencies && npm run web-app:dependencies"
   },
   "keywords": [
     "auth0",

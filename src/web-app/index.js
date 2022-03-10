@@ -89,7 +89,7 @@ app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
     errorMessage = 'You are not authorized to make this transaction. Perhaps you can try with a smaller transaction amount?';
   }
 
-  const transaction_amount = req.query && req.query.transaction_amount || 150;
+  const transaction_amount = req.query && req.query.transaction_amount || 15;
   res.render("transaction", {
     user: req.oidc && req.oidc.user,
     id_token: req.oidc && req.oidc.idToken,
@@ -113,7 +113,7 @@ app.get("/resume-transaction", requiresAuth(), async (req, res, next) => {
       return next(err);
     }
   } else {
-    const transaction_amount = req.query && req.query.transaction_amount || 150;
+    const transaction_amount = req.query && req.query.transaction_amount || 15;
     res.render("transaction", {
       user: req.oidc && req.oidc.user,
       id_token: req.oidc && req.oidc.idToken,

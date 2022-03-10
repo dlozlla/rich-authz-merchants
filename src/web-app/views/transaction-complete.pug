@@ -3,5 +3,10 @@ extends layout
 block content
   .content
     h1
-     | Transaction Completed!
+      | Congratulations! Your transaction succeeded!
+    p
+      | Check your
+      |
+      a(href='/balance')="Account Balance"
+      | .
 

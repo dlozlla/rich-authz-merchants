@@ -1,20 +1,21 @@
 ul(class='navigation', role='navigation')
   li.logo
     a(href='/')
-      img(src='/images/scotiabank.png')
+      img(src='/images/wookie-coin.png')
   li
     a(href='/') Home
-  if user 
+  if user
     li
-        a(href='/balance') My Balance
+        a(href='/balance') My Wookie Coins
     li
-        a(href='/prepare-transaction') Transfer Money
+        a(href='/prepare-transaction') Buy Wookie Coins
   li.spacer
   if user
     li
       a(href='/logout') Logout
     li.profile
-      img.picture(src=user.picture)
+      a(href='/user')
+        img.picture(src=user.picture)
   else
     li
       a(href='/login') Login

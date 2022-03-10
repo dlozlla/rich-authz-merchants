@@ -175,3 +175,26 @@ li.logo img {
 .notice-message {
   color: orange;
 }
+
+.center-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 85%;
+  max-width: 500px;
+}
+
+[name=transaction_amount],
+[type='submit'] {
+  font-size: 3em;
+  border-radius: 16px;
+  padding: 0 13px;
+}
+
+[name=transaction_amount] {
+  width: 200px;
+}
+
+[type='submit'] {
+  padding: 0 10px;
+}

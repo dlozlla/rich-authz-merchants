@@ -2,10 +2,22 @@ extends layout
 
 block content
   .content
-    h1 Home Page
+    h1 Wookie Coin
     p
-      if user
-        a(href='/user')=user.name
-        | , you can now check your balance and execute transactions
-      else
-        | Hello, please login to check your balance and strart a transaction.
+      | Welcome to Wookie Coin, the only place to purchase the most profitable coin in a galaxy far far away.
+    if user
+      p
+      | We are going to the moon, do not wait and
+      |
+      a(href='/prepare-transaction')="buy some Wookie Coins"
+      | .
+    else
+      | Hello, please
+      |
+      a(href='/login') login
+      |
+      | to check your wookie coin balance and start making purchases.
+    br
+    br
+    br
+    img(src='/images/wookie-coin.png', class="center-image")

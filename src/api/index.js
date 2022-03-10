@@ -25,17 +25,15 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-const initialBalance= 1000;
-
-const expenses = [
+const purchases = [
   {
     date: new Date(),
-    description: "Pizza for a Coding Dojo session.",
+    description: "Buy: Wookie Coins (transaction_id=6228013377)",
     value: 102,
   },
   {
     date: new Date(),
-    description: "Coffee for a Coding Dojo session.",
+    description: "Buy: Wookie Coins (transaction_id=5613560515)",
     value: 42,
   },
 ];
@@ -61,15 +59,15 @@ app.use(auth({
 // 👇 private routes below 👇
 
 app.get("/balance", (req, res) => {
-  let totalExpenses = expenses.reduce((accum, expense) => accum + expense.value, 0);
-  let balance = initialBalance - totalExpenses;
+  let totalPurchases = purchases.reduce((accum, purchase) => accum + purchase.value, 0);
+  let balance = totalPurchases;
   logger.info(`balance: ${balance}`);
   res.send({balance});
 });
 
 app.get("/reports", requiredScopes(REQUIRED_SCOPES), (req, res) => {
   logger.info(`Valid token with scopes ${REQUIRED_SCOPES}`);
-  res.send(expenses);
+  res.send(purchases);
 });
 
 class InsufficientAuthorizationDetailsError extends Error {
@@ -101,10 +99,10 @@ app.post("/transaction", (req, res, next) => {
     logger.info(`Mismatching requested/granted transaction amounts ${JSON.stringify(requestedTransactionAmount)} vs ${JSON.stringify(grantedTransactionAmount)}`);
     return next(new InsufficientAuthorizationDetailsError(newTransactionId()));
   }
-  expenses.push(
+  purchases.push(
     {
       date: new Date(),
-      description: `Manual transfer (transaction_id=${transaction_id}`,
+      description: `Buy: Wookie Coins (transaction_id=${transaction_id})`,
       value: requestedTransactionAmount,
     }
   );

@@ -193,7 +193,7 @@ app.get("/balance", requiresAuth(), async (req, res, next) => {
         res.render("balance", {
           user: req.oidc && req.oidc.user,
           balance: balance.data.balance,
-          expenses: transactionHistory.data,
+          purchases: transactionHistory.data,
         });
       } else {
         next(createError(403, "Access token required to complete this operation. Please, use an OIDC flow that issues an access_token"));

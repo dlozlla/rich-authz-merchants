@@ -2,21 +2,24 @@ extends layout
 
 block content
   .content
-    h1 Balance Report
+    h1 My Wookie Coins Balance
     p
       if user
         a(href='/user')=user.name
-        |, your current balance is: 
+        |, you are the proud owner of
+        |
         strong=balance
+        |
+        | Wookie Coins!
     p
-      | This is your transaction history:
+      | This is your coin purchase history:
     table(border='1')
       tr
-        each key in Object.keys(expenses[0])
+        each key in Object.keys(purchases[0])
           th
             strong=key
-      each expense in expenses
+      each purchase in purchases
         tr
-          each key in Object.keys(expense)
-            td=expense[key]
-    p Don't spend to much.
+          each key in Object.keys(purchase)
+            td=purchase[key]
+    p You know you want more... 🚀

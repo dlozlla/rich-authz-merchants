@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  .content
+    h1=user.name
+    form(action='/submit-transaction', method='POST')
+      p
+        | transaction_amount:
+        input(type='text', name='transaction_amount', value='150')
+      input(type='submit', value='Submit')
+

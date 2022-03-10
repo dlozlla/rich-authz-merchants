@@ -84,18 +84,66 @@ app.get("/user", requiresAuth(), async (req, res) => {
 });
 
 app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
-  const authorization_details = [{
-    "type": "https://auth0team.atlassian.net/browse/HACK22-44",
-    "transaction_amount": 30 //TODO: Needs to come from the UI...
-  }];
-
-  res.oidc.login({
-    returnTo: '/', //TODO: we should return to a page where we confirm and execute the transaction
-    authorizationParams: {
-      authorization_details: JSON.stringify(authorization_details)
-    },
+  res.render("transaction", {
+    user: req.oidc && req.oidc.user,
+    id_token: req.oidc && req.oidc.idToken,
+    access_token: req.oidc && req.oidc.accessToken,
+    refresh_token: req.oidc && req.oidc.refreshToken,
   });
 });
+
+app.get("/resume-transaction", requiresAuth(), async (req, res) => {
+  //TODO: We need to retry to submit the transaction to the API...
+  res.render("transaction", {
+    user: req.oidc && req.oidc.user,
+    id_token: req.oidc && req.oidc.idToken,
+    access_token: req.oidc && req.oidc.accessToken,
+    refresh_token: req.oidc && req.oidc.refreshToken,
+  });
+});
+
+app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
+  const transaction_amount = req.body.transaction_amount;
+  try {
+    if (responseTypesWithToken.includes(RESPONSE_TYPE)) {
+      let { token_type, access_token } = req.oidc.accessToken;
+      logger.info(`Send request to API with token type: ${token_type}`);
+      let expenses = await axios.post(`${API_URL}/transaction`, {
+        transaction_amount,
+      }, {
+        headers: {
+          Authorization: `${token_type} ${access_token}`,
+        },
+      });
+      res.render("expenses", {
+        user: req.oidc && req.oidc.user,
+        expenses: expenses.data,
+      });
+    } else {
+      next(createError(403, "Access token required to complete this operation. Please, use an OIDC flow that issues an access_token"));
+    }
+  } catch (err) {
+    if (err.isAxiosError) {
+      const statusCode = err.response.status;
+      const code = err.response.data.code;
+      if (statusCode === 403 && code === 'insufficient_authorization_details') {
+        const authorization_details = [{
+          type: 'https://auth0team.atlassian.net/browse/HACK22-44',
+          transaction_amount
+        }];
+        res.oidc.login({
+          returnTo: '/resume-transaction',
+          authorizationParams: {
+            authorization_details: JSON.stringify(authorization_details),
+          },
+        });
+        return;
+      }
+    }
+    next(err);
+  }
+});
+
 
 app.get("/expenses", requiresAuth(), async (req, res, next) => {
     try {
@@ -129,7 +177,7 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = err;
 
-  logger.error('${err.message}');
+  logger.error(`${err.message}`);
 
   // render the error page
   res.status(err.status || 500);

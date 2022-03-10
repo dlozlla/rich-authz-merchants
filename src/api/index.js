@@ -1,7 +1,7 @@
 const {
   checkUrl,
   ISSUER_BASE_URL, // Auth0 Tenant Url
-  AUDIENCE, 
+  AUDIENCE,
   API_PORT,
   API_URL, // URL for Expenses API
   REQUIRED_SCOPES,
@@ -10,7 +10,7 @@ const {
 const express = require("express");
 const cors = require("cors");
 const { createServer } = require("http");
-const { auth , requiredScopes,  } = require("express-oauth2-jwt-bearer");
+const { auth, requiredScopes, claimCheck } = require("express-oauth2-jwt-bearer");
 const morgan = require("morgan");
 const logger = require("./winston");
 
@@ -65,9 +65,32 @@ app.get("/reports", requiredScopes(REQUIRED_SCOPES), (req, res) => {
   res.send(expenses);
 });
 
+class InsufficientAuthorizationDetailsError extends Error {
+  constructor(message = 'Insufficient Authorization Details') {
+    super(message);
+    this.code = 'insufficient_authorization_details';
+    this.status = 403;
+    this.statusCode = 403;
+    this.headers = {
+      'WWW-Authenticate': `Bearer realm="api", error="${this.code}", error_description="${message.replace(/"/g, "'")}"`,
+    };
+    this.name = this.constructor.name;
+  }
+}
+
+app.post("/transaction", (req, res, next) => {
+  logger.info(`/transaction, ${JSON.stringify(req.auth.payload, null, 2)}`);
+  const jwtPayload = req.auth.payload;
+  if (!jwtPayload.transaction_amount) {
+    return next(new InsufficientAuthorizationDetailsError());
+  }
+  res.send({ confirmed: true });
+});
+
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.json({
+    code: err.code,
     status: err.status,
     message: err.message,
   });

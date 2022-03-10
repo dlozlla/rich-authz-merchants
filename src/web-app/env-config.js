@@ -10,17 +10,23 @@ const {
   AUDIENCE,
   SCOPE,
   SESSION_SECRET,
+  PORT,
   APP_PORT,
   API_URL,
 } = process.env;
+let {
+  APP_URL,
+} = process.env;
 
-const appUrl = `http://localhost:${APP_PORT}`;
+if (!APP_URL) {
+  APP_URL = `http://localhost:${PORT || APP_PORT}`;
+}
 
 function checkUrl() {
   return (req, res, next) => {
     let host = req.headers.host;
-    if (!appUrl.includes(host)) {
-      return res.status(301).redirect(appUrl);
+    if (!APP_URL.includes(host)) {
+      return res.status(301).redirect(APP_URL);
     }
     return next();
   };
@@ -43,8 +49,9 @@ console.log(`AUDIENCE: ${AUDIENCE}`);
 console.log(`SCOPE: ${SCOPE}`);
 if (SESSION_SECRET) console.log(`SESSION_SECRET: ${SESSION_SECRET}`);
 else console.log(`SESSION_SECRET: Not Set`);
+console.log(`PORT: ${PORT}`);
 console.log(`APP_PORT: ${APP_PORT}`);
-console.log(`APP_URL: ${appUrl}`);
+console.log(`APP_URL: ${APP_URL}`);
 console.log(`API_URL: ${API_URL}`);
 
 console.log("----------------------------------\n");
@@ -58,7 +65,8 @@ module.exports = {
   RESPONSE_TYPE: RESPONSE_TYPE,
   SCOPE: SCOPE,
   SESSION_SECRET: SESSION_SECRET,
+  PORT: PORT,
   APP_PORT: APP_PORT,
-  APP_URL: appUrl,
+  APP_URL: APP_URL,
   API_URL: removeTrailingSlashFromUrl(API_URL),
 };

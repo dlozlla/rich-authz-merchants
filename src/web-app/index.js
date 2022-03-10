@@ -8,6 +8,7 @@ const {
   SCOPE,
   SESSION_SECRET, // Cookie Encryption Key
   APP_PORT,
+  PORT,
   APP_URL, // Public URL for this app
   API_URL, // URL for Expenses API
 } = require("./env-config");
@@ -228,6 +229,6 @@ app.use(function (err, req, res, next) {
   });
 });
 
-createServer(app).listen(APP_PORT, () => {
-  logger.info(`WEB APP listening at: ${APP_URL}`);
+createServer(app).listen(PORT || APP_PORT, () => {
+  logger.info(`WEB APP listening on port: ${APP_URL}`);
 });

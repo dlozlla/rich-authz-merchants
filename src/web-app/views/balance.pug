@@ -2,16 +2,14 @@ extends layout
 
 block content
   .content
-    h1 Expense Report
+    h1 Balance Report
     p
-      | Hello,
-      |
       if user
         a(href='/user')=user.name
-      else
-        | Anonymous
-      |.
-      | These are your expenses:
+        |, your current balance is: 
+        strong=balance
+    p
+      | This is your transaction history:
     table(border='1')
       tr
         each key in Object.keys(expenses[0])

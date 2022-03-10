@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  .content
+    h1=user.name
+    form(action='/submit-transaction', method='POST')
+      if errorMessage
+        p(class="error-message")=errorMessage
+      if noticeMessage
+        p(class="notice-message")=noticeMessage
+      p
+        | Transaction Amount:
+        input(type='number', name='transaction_amount', value=transaction_amount)
+      input(type='submit', value='Submit')
+

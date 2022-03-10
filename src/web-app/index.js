@@ -153,11 +153,11 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
       const code = err.response.data.code;
       if (statusCode === 403 && code === 'insufficient_authorization_details') {
         const transaction_id = err.response.data.transaction_id;
-        const authorization_details = [{
+        const authorization_details = {
           type: 'https://wookiebank.com/buy-coins',
           transaction_amount,
           transaction_id,
-        }];
+        };
         req.session.pendingTransaction = {
           transaction_amount,
           transaction_id,

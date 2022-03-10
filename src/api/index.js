@@ -71,7 +71,7 @@ app.get("/reports", requiredScopes(REQUIRED_SCOPES), (req, res) => {
 });
 
 class InsufficientAuthorizationDetailsError extends Error {
-  constructor(transactionId) {
+  constructor(transaction_id) {
     super('Insufficient Authorization Details');
     this.code = 'insufficient_authorization_details';
     this.status = 403;
@@ -82,7 +82,7 @@ class InsufficientAuthorizationDetailsError extends Error {
       code: this.code,
       status: this.status,
       message: this.message,
-      transactionId
+      transaction_id
     }
     this.name = this.constructor.name;
   }

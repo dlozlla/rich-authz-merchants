@@ -73,35 +73,38 @@ app.get("/reports", requiredScopes(REQUIRED_SCOPES), (req, res) => {
 });
 
 class InsufficientAuthorizationDetailsError extends Error {
-  constructor(message = 'Insufficient Authorization Details') {
-    super(message);
+  constructor(transactionId) {
+    super('Insufficient Authorization Details');
     this.code = 'insufficient_authorization_details';
     this.status = 403;
     this.statusCode = 403;
     this.headers = {
       'WWW-Authenticate': `Bearer realm="api", error="${this.code}", error_description="${message.replace(/"/g, "'")}"`,
     };
+    this.transactionId = transactionId;
     this.name = this.constructor.name;
   }
 }
+
+const newTransactionId = () => Math.floor(Math.random() * 10000000000).toString();
 
 app.post("/transaction", (req, res, next) => {
   logger.info(`/transaction, ${JSON.stringify(req.auth.payload, null, 2)}`);
   const jwtPayload = req.auth.payload;
   if (!jwtPayload.authorization_details) {
-    return next(new InsufficientAuthorizationDetailsError());
+    return next(new InsufficientAuthorizationDetailsError(newTransactionId()));
   }
-  // TODO: Validate that the `transaction_amount` matches the AT's authorization_details.transaction_amount value
+  const transaction_id = req.body.transaction_id;
   const requestedTransactionAmount = req.body.transaction_amount;
   const grantedTransactionAmount = jwtPayload.authorization_details.transaction_amount;
   if (requestedTransactionAmount !== grantedTransactionAmount) {
     logger.info(`Mismatching requested/granted transaction amounts ${JSON.stringify(requestedTransactionAmount)} vs ${JSON.stringify(grantedTransactionAmount)}`);
-    return next(new InsufficientAuthorizationDetailsError());
+    return next(new InsufficientAuthorizationDetailsError(newTransactionId()));
   }
   expenses.push(
     {
       date: new Date(),
-      description: "Manual transfer",
+      description: `Manual transfer (transaction_id=${transaction_id}`,
       value: requestedTransactionAmount,
     }
   );
@@ -116,6 +119,7 @@ app.use((err, req, res, next) => {
     code: err.code,
     status: err.status,
     message: err.message,
+    transactionId: err.transactionId,
   });
 });
 

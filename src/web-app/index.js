@@ -99,33 +99,47 @@ app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
   });
 });
 
-app.get("/resume-transaction", requiresAuth(), async (req, res) => {
-  //TODO: We need to retry to submit the transaction to the API...
-  const noticeMessage = "The Authorization Server authorized the transaction, you can now proceed with the transaction..."
-  const transaction_amount = req.query && req.query.transaction_amount || 150;
-  res.render("transaction", {
-    user: req.oidc && req.oidc.user,
-    id_token: req.oidc && req.oidc.idToken,
-    access_token: req.oidc && req.oidc.accessToken,
-    refresh_token: req.oidc && req.oidc.refreshToken,
-    transaction_amount,
-    noticeMessage
-  });
+app.get("/resume-transaction", requiresAuth(), async (req, res, next) => {
+  if (req.session.pendingTransaction) {
+    try {
+      const { transaction_amount, transaction_id } = req.session.pendingTransaction;
+      // TODO: handle the error case here...
+      await submitTransaction({ transaction_amount, transaction_id }, req);
+      res.render("transaction-complete", {
+        user: req.oidc && req.oidc.user,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  } else {
+    const transaction_amount = req.query && req.query.transaction_amount || 150;
+    res.render("transaction", {
+      user: req.oidc && req.oidc.user,
+      id_token: req.oidc && req.oidc.idToken,
+      access_token: req.oidc && req.oidc.accessToken,
+      refresh_token: req.oidc && req.oidc.refreshToken,
+      transaction_amount
+    });
+  }
 });
+
+const submitTransaction = async (payload, req) => {
+  let { token_type, access_token } = req.oidc.accessToken;
+  logger.info(`Send request to API with token type: ${token_type}`);
+  await axios.post(`${API_URL}/transaction`, payload, {
+    headers: {
+      Authorization: `${token_type} ${access_token}`,
+    },
+  });
+
+  delete req.session.pendingTransaction;
+};
 
 app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
   const transaction_amount = Number(req.body.transaction_amount);
   try {
     if (responseTypesWithToken.includes(RESPONSE_TYPE)) {
-      let { token_type, access_token } = req.oidc.accessToken;
-      logger.info(`Send request to API with token type: ${token_type}`);
-      let response = await axios.post(`${API_URL}/transaction`, {
-        transaction_amount,
-      }, {
-        headers: {
-          Authorization: `${token_type} ${access_token}`,
-        },
-      });
+      await submitTransaction({ transaction_amount }, req);
       res.render("transaction-complete", {
         user: req.oidc && req.oidc.user,
       });
@@ -137,12 +151,18 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
       const statusCode = err.response.status;
       const code = err.response.data.code;
       if (statusCode === 403 && code === 'insufficient_authorization_details') {
+        const transaction_id = err.response.data.transaction_id;
         const authorization_details = [{
-          type: 'https://auth0team.atlassian.net/browse/HACK22-44',
-          transaction_amount
+          type: 'https://wookiebank.com/buy-coins',
+          transaction_amount,
+          transaction_id,
         }];
+        req.session.pendingTransaction = {
+          transaction_amount,
+          transaction_id,
+        };
         res.oidc.login({
-          returnTo: `/resume-transaction?transaction_amount=${transaction_amount}`,
+          returnTo: `/resume-transaction`,
           authorizationParams: {
             authorization_details: JSON.stringify(authorization_details),
           },

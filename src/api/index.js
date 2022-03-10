@@ -75,11 +75,15 @@ class InsufficientAuthorizationDetailsError extends Error {
     super('Insufficient Authorization Details');
     this.code = 'insufficient_authorization_details';
     this.status = 403;
-    this.statusCode = 403;
     this.headers = {
-      'WWW-Authenticate': `Bearer realm="api", error="${this.code}", error_description="${message.replace(/"/g, "'")}"`,
+      'WWW-Authenticate': `Bearer realm="api", error="${this.code}""`,
     };
-    this.transactionId = transactionId;
+    this.responsePayload = {
+      code: this.code,
+      status: this.status,
+      message: this.message,
+      transactionId
+    }
     this.name = this.constructor.name;
   }
 }
@@ -113,11 +117,10 @@ app.use((err, req, res, next) => {
   logger.error(`Error: ${err.stack}`);
 
   res.status(err.status || 500);
-  res.json({
+  res.json(err.responsePayload || {
     code: err.code,
     status: err.status,
     message: err.message,
-    transactionId: err.transactionId,
   });
 });
 

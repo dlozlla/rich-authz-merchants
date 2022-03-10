@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  .content
+    h1 Balance Report
+    p
+      if user
+        a(href='/user')=user.name
+        |, your current balance is: 
+        strong=balance
+    p
+      | This is your transaction history:
+    table(border='1')
+      tr
+        each key in Object.keys(expenses[0])
+          th
+            strong=key
+      each expense in expenses
+        tr
+          each key in Object.keys(expense)
+            td=expense[key]
+    p Don't spend to much.

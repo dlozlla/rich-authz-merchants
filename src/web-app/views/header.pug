@@ -1,11 +1,14 @@
 ul(class='navigation', role='navigation')
   li.logo
     a(href='/')
-      img(src='/images/auth0.png')
+      img(src='/images/scotiabank.png')
   li
-      a(href='/') Home
-  li
-      a(href='/expenses') Expenses
+    a(href='/') Home
+  if user 
+    li
+        a(href='/balance') My Balance
+    li
+        a(href='/prepare-transaction') Transfer Money
   li.spacer
   if user
     li

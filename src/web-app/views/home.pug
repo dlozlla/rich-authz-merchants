@@ -4,28 +4,8 @@ block content
   .content
     h1 Home Page
     p
-      | Hello,
-      |
       if user
         a(href='/user')=user.name
+        | , you can now check your balance and execute transactions
       else
-        | Anonymous
-      |.
-    p
-      | Click
-      |
-      a(href='/prepare-transaction') here
-      |
-      | to start a transaction
-    p So far, this app has been used to manage:
-      ul
-        li
-          strong=count
-          |
-          | expenses
-        li
-          strong=total
-          |
-          | dollars
-
-
+        | Hello, please login to check your balance and strart a transaction.

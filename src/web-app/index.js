@@ -63,11 +63,8 @@ app.use(
 
 app.get("/", async (req, res, next) => {
     try {
-       const summary = await axios.get(`${API_URL}/total`);
        res.render("home", {
         user: req.oidc && req.oidc.user,
-        total: summary.data.total,
-        count: summary.data.count,
        });
     } catch (err) {
        next(err);
@@ -84,6 +81,7 @@ app.get("/user", requiresAuth(), async (req, res) => {
 });
 
 app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
+
   res.render("transaction", {
     user: req.oidc && req.oidc.user,
     id_token: req.oidc && req.oidc.idToken,
@@ -145,19 +143,25 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
 });
 
 
-app.get("/expenses", requiresAuth(), async (req, res, next) => {
+app.get("/balance", requiresAuth(), async (req, res, next) => {
     try {
       if (responseTypesWithToken.includes(RESPONSE_TYPE)) {
         let { token_type, access_token } = req.oidc.accessToken;
         logger.info(`Send request to API with token type: ${token_type}`);
-        let expenses = await axios.get(`${API_URL}/reports`, {
+        let balance = await axios.get(`${API_URL}/balance`, {
           headers: {
             Authorization: `${token_type} ${access_token}`,
           },
         });
-        res.render("expenses", {
+        let transactionHistory = await axios.get(`${API_URL}/reports`, {
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+          },
+        });
+        res.render("balance", {
           user: req.oidc && req.oidc.user,
-          expenses: expenses.data,
+          balance: balance.data.balance,
+          expenses: transactionHistory.data,
         });
       } else {
         next(createError(403, "Access token required to complete this operation. Please, use an OIDC flow that issues an access_token"));

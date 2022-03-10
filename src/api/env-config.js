@@ -6,6 +6,7 @@ const {
   ISSUER_BASE_URL,
   AUDIENCE,
   API_PORT,
+  PORT,
   API_URL,
   REQUIRED_SCOPES,
 } = process.env;
@@ -30,8 +31,9 @@ console.log("\n----------------------------------");
 console.log("Environment Settings:");
 console.log(`ISSUER_BASE_URL: ${ISSUER_BASE_URL}`);
 console.log(`AUDIENCE: ${AUDIENCE}`);
-console.log(`API_URL: ${API_URL}`);
-console.log(`API_URL: ${REQUIRED_SCOPES}`);
+console.log(`API_PORT: ${API_PORT}`);
+console.log(`PORT: ${PORT}`);
+console.log(`REQUIRED_SCOPES: ${REQUIRED_SCOPES}`);
 console.log("----------------------------------\n");
 
 module.exports = {
@@ -39,6 +41,7 @@ module.exports = {
   ISSUER_BASE_URL: removeTrailingSlashFromUrl(ISSUER_BASE_URL),
   AUDIENCE: AUDIENCE,
   API_PORT: API_PORT,
+  PORT: PORT,
   API_URL: removeTrailingSlashFromUrl(API_URL),
   REQUIRED_SCOPES: REQUIRED_SCOPES,
 };

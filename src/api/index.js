@@ -3,7 +3,7 @@ const {
   ISSUER_BASE_URL, // Auth0 Tenant Url
   AUDIENCE,
   API_PORT,
-  API_URL, // URL for Expenses API
+  PORT,
   REQUIRED_SCOPES,
 } = require("./env-config");
 
@@ -123,6 +123,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-createServer(app).listen(API_PORT, () => {
-  logger.info(`API server listening at: ${API_URL}`);
+createServer(app).listen(PORT || API_PORT, () => {
+  logger.info(`API server listening at: ${PORT || API_PORT}`);
 });

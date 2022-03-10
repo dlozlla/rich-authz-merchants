@@ -87,6 +87,7 @@ app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
   if (error === 'access_denied') {
     // The AS said we are not allowed to do this transaction, tell the end-user!
     errorMessage = 'You are not authorized to make this transaction. Perhaps you can try with a smaller transaction amount?';
+    delete req.session.pendingTransaction;
   }
 
   const transaction_amount = req.query && req.query.transaction_amount || 15;

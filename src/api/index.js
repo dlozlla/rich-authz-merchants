@@ -13,6 +13,7 @@ const { createServer } = require("http");
 const { auth, requiredScopes, claimCheck } = require("express-oauth2-jwt-bearer");
 const morgan = require("morgan");
 const logger = require("./winston");
+const bodyParser = require("body-parser");
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.use(checkUrl());
 
 app.use(morgan('":method :url :status :res[content-length] - :response-time ms"', { stream: logger.stream }));
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 const initialBalance= 1000;
 
@@ -85,13 +88,29 @@ class InsufficientAuthorizationDetailsError extends Error {
 app.post("/transaction", (req, res, next) => {
   logger.info(`/transaction, ${JSON.stringify(req.auth.payload, null, 2)}`);
   const jwtPayload = req.auth.payload;
-  if (!jwtPayload.transaction_amount) {
+  if (!jwtPayload.authorization_details) {
     return next(new InsufficientAuthorizationDetailsError());
   }
+  // TODO: Validate that the `transaction_amount` matches the AT's authorization_details.transaction_amount value
+  const requestedTransactionAmount = req.body.transaction_amount;
+  const grantedTransactionAmount = jwtPayload.authorization_details.transaction_amount;
+  if (requestedTransactionAmount !== grantedTransactionAmount) {
+    logger.info(`Mismatching requested/granted transaction amounts ${JSON.stringify(requestedTransactionAmount)} vs ${JSON.stringify(grantedTransactionAmount)}`);
+    return next(new InsufficientAuthorizationDetailsError());
+  }
+  expenses.push(
+    {
+      date: new Date(),
+      description: "Manual transfer",
+      value: requestedTransactionAmount,
+    }
+  );
   res.send({ confirmed: true });
 });
 
 app.use((err, req, res, next) => {
+  logger.error(`Error: ${err.stack}`);
+
   res.status(err.status || 500);
   res.json({
     code: err.code,

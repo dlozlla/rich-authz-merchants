@@ -81,41 +81,53 @@ app.get("/user", requiresAuth(), async (req, res) => {
 });
 
 app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
+  let errorMessage;
+  const error = req.query && req.query.error;
+  if (error === 'access_denied') {
+    // The AS said we are not allowed to do this transaction, tell the end-user!
+    errorMessage = 'You are not authorized to make this transaction. Perhaps you can try with a smaller transaction amount?';
+  }
 
+  const transaction_amount = req.query && req.query.transaction_amount || 150;
   res.render("transaction", {
     user: req.oidc && req.oidc.user,
     id_token: req.oidc && req.oidc.idToken,
     access_token: req.oidc && req.oidc.accessToken,
     refresh_token: req.oidc && req.oidc.refreshToken,
+    transaction_amount,
+    errorMessage
   });
 });
 
 app.get("/resume-transaction", requiresAuth(), async (req, res) => {
   //TODO: We need to retry to submit the transaction to the API...
+  const noticeMessage = "The Authorization Server authorized the transaction, you can now proceed with the transaction..."
+  const transaction_amount = req.query && req.query.transaction_amount || 150;
   res.render("transaction", {
     user: req.oidc && req.oidc.user,
     id_token: req.oidc && req.oidc.idToken,
     access_token: req.oidc && req.oidc.accessToken,
     refresh_token: req.oidc && req.oidc.refreshToken,
+    transaction_amount,
+    noticeMessage
   });
 });
 
 app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
-  const transaction_amount = req.body.transaction_amount;
+  const transaction_amount = Number(req.body.transaction_amount);
   try {
     if (responseTypesWithToken.includes(RESPONSE_TYPE)) {
       let { token_type, access_token } = req.oidc.accessToken;
       logger.info(`Send request to API with token type: ${token_type}`);
-      let expenses = await axios.post(`${API_URL}/transaction`, {
+      let response = await axios.post(`${API_URL}/transaction`, {
         transaction_amount,
       }, {
         headers: {
           Authorization: `${token_type} ${access_token}`,
         },
       });
-      res.render("expenses", {
+      res.render("transaction-complete", {
         user: req.oidc && req.oidc.user,
-        expenses: expenses.data,
       });
     } else {
       next(createError(403, "Access token required to complete this operation. Please, use an OIDC flow that issues an access_token"));
@@ -130,7 +142,7 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
           transaction_amount
         }];
         res.oidc.login({
-          returnTo: '/resume-transaction',
+          returnTo: `/resume-transaction?transaction_amount=${transaction_amount}`,
           authorizationParams: {
             authorization_details: JSON.stringify(authorization_details),
           },
@@ -178,6 +190,12 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
+  if (err.error === 'access_denied') {
+    // Crude way of handling the unauthorized error from the authorization server.
+    // We must redirect back to the /prepare-transaction page, but be sure to capture that the transaction was denied.
+    res.redirect('/prepare-transaction?error=access_denied');
+    return;
+  }
   res.locals.message = err.message;
   res.locals.error = err;
 

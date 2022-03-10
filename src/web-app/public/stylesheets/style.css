@@ -167,3 +167,11 @@ li.logo img {
 .dropdown:hover .dropbtn {
   background-color: #f1f1f1;
 }
+
+.error-message {
+  color: red;
+}
+
+.notice-message {
+  color: orange;
+}

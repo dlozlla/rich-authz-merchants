@@ -168,6 +168,7 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
           returnTo: `/resume-transaction`,
           authorizationParams: {
             authorization_details: JSON.stringify(authorization_details),
+            scope: 'openid profile read:balance'
           },
         });
         return;

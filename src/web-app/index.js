@@ -158,6 +158,7 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
           type: 'https://wookiebank.com/buy-coins',
           transaction_amount,
           transaction_id,
+          account: 'Checking Account 45-049-21'
         };
         req.session.pendingTransaction = {
           transaction_amount,

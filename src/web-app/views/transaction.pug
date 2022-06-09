@@ -22,10 +22,12 @@ block content
         th
           form(action='/submit-transaction', method='POST')
             input(type='hidden', name='transaction_amount', value=270)
+            input(type='hidden', name='description', value='Fligh from Madrid to Sofia')
             input(type='submit', value='Purchase')
         th  
           form(action='/submit-transaction', method='POST')
             input(type='hidden', name='transaction_amount', value=20)
+            input(type='hidden', name='description', value='The best paella on this side of the river')
             input(type='submit', value='Purchase')          
         th 
           input(type='submit', value='Explore')

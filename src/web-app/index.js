@@ -104,9 +104,9 @@ app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
 app.get("/resume-transaction", requiresAuth(), async (req, res, next) => {
   if (req.session.pendingTransaction) {
     try {
-      const { transaction_amount, transaction_id } = req.session.pendingTransaction;
+      const { transaction_amount, transaction_id, description } = req.session.pendingTransaction;
       // TODO: handle the error case here...
-      await submitTransaction({ transaction_amount, transaction_id }, req);
+      await submitTransaction({ transaction_amount, transaction_id, description }, req);
       res.render("transaction-complete", {
         user: req.oidc && req.oidc.user,
       });
@@ -139,6 +139,7 @@ const submitTransaction = async (payload, req) => {
 
 app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
   const transaction_amount = Number(req.body.transaction_amount);
+  const description = req.body.description
   try {
     if (responseTypesWithToken.includes(RESPONSE_TYPE)) {
       await submitTransaction({ transaction_amount }, req);
@@ -160,11 +161,12 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
           transaction_currency: "USD",
           transaction_id,
           account: 'AB10458203746523457',
-          description: 'Flight from Madrid to Sofia'
+          description,
         }];
         req.session.pendingTransaction = {
           transaction_amount,
           transaction_id,
+          description,
         };
         res.oidc.login({
           returnTo: `/resume-transaction`,

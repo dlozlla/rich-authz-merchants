@@ -92,6 +92,7 @@ const newTransactionId = () => Math.floor(Math.random() * 10000000000).toString(
 
 app.post("/transaction", (req, res, next) => {
   logger.info(`/transaction, ${JSON.stringify(req.auth.payload, null, 2)}`);
+  logger.info(`/transaction, ${JSON.stringify(req.body, null, 2)}`);
   const jwtPayload = req.auth.payload;
   if (!jwtPayload.authorization_details) {
     return next(new InsufficientAuthorizationDetailsError(newTransactionId()));

@@ -95,14 +95,14 @@ app.post("/transaction", (req, res, next) => {
   const jwtPayload = req.auth.payload;
   if (!jwtPayload.authorization_details) {
     return next(new InsufficientAuthorizationDetailsError(newTransactionId()));
-  }
+  } 
   const transaction_id = req.body.transaction_id;
   const requestedTransactionAmount = req.body.transaction_amount;
   const grantedTransactionAmount = jwtPayload.authorization_details.transaction_amount;
   if (requestedTransactionAmount !== grantedTransactionAmount) {
     logger.info(`Mismatching requested/granted transaction amounts ${JSON.stringify(requestedTransactionAmount)} vs ${JSON.stringify(grantedTransactionAmount)}`);
     return next(new InsufficientAuthorizationDetailsError(newTransactionId()));
-  }
+  } 
   purchases.push(
     {
       date: new Date(),

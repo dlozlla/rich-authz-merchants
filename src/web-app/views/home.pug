@@ -2,22 +2,22 @@ extends layout
 
 block content
   .content
-    h1 Wookie Coin
+    h1 Online Shop
     p
-      | Welcome to Wookie Coin, the only place to purchase the most profitable coin in a galaxy far far away.
+      | Find cool offers in Online Shop. To make your payments easy and secure, we work with Wookie Bank.
     if user
       p
-      | We are going to the moon, do not wait and
+      | Do not wait and
       |
-      a(href='/prepare-transaction')="buy some Wookie Coins"
+      a(href='/prepare-transaction')="find some cool Offer"
       | .
     else
       | Hello, please
       |
       a(href='/login') login
       |
-      | to check your wookie coin balance and start making purchases.
+      | to start finding cool offers in Online Shop.
     br
     br
     br
-    img(src='/images/wookie-coin.png', class="center-image")
+    img(src='/images/online-shop.jpeg', class="center-image")

@@ -2,16 +2,30 @@ extends layout
 
 block content
   .content
-    h1 Buy Wookie Coins!
-    p A long time ago, we did not have Wookie Coins, but now we do! Tell us how many Wookie Coins you would like to buy and we will process the transaction with your bank.
-    p.notice-message You might need to complete additional authentication steps and consent to this operation before proceeding.
-    form(action='/submit-transaction', method='POST')
-      if errorMessage
-        p(class="error-message")=errorMessage
-      p
-        | How many Wookie Coins would you like to buy ?
-        | &nbsp;&nbsp;&nbsp;
-        input(type='number', name='transaction_amount', step='any' value=transaction_amount)
-        | &nbsp;&nbsp;&nbsp;
-        input(type='submit', value='Proceed 🚀')
-
+    h1 Special offers!
+    p Simply pick your offer and proceed with the instructions to complete the payment.
+    p.notice-message You might need to complete additional authentication steps and consent to this operation.
+    br
+    table(style='width:100%', border='0')
+      tr 
+        th(style="color:Tomato;font-size:20px") FLY from Madrid (Spain) to Sofia (Bulgari) for 270 $
+        th(style="color:Tomato;font-size:20px") The best spanish PAELLA on this side of the river for 20 $
+        th(style="color:Tomato;font-size:20px") The best offers in SPORTWEAR for your workouts 
+      tr 
+        th
+          img(src='/images/plane-drawing.jpeg')
+        th  
+          img(src='/images/paella.jpeg')
+        th 
+          img(src='/images/sportwear.jpeg')
+      tr 
+        th
+          form(action='/submit-transaction', method='POST')
+            input(type='hidden', name='transaction_amount', value=270)
+            input(type='submit', value='Purchase')
+        th  
+          form(action='/submit-transaction', method='POST')
+            input(type='hidden', name='transaction_amount', value=20)
+            input(type='submit', value='Purchase')          
+        th 
+          input(type='submit', value='Explore')

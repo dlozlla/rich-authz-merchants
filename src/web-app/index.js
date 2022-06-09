@@ -154,12 +154,14 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
       const code = err.response.data.code;
       if (statusCode === 403 && code === 'insufficient_authorization_details') {
         const transaction_id = err.response.data.transaction_id;
-        const authorization_details = {
-          type: 'https://wookiebank.com/buy-coins',
+        const authorization_details = [{
+          type: 'payment_initiation',
           transaction_amount,
+          transaction_currency: "USD",
           transaction_id,
-          account: 'Checking Account 45-049-21'
-        };
+          account: 'AB10458203746523457',
+          description: 'Flight from Madrid to Sofia'
+        }];
         req.session.pendingTransaction = {
           transaction_amount,
           transaction_id,
@@ -168,7 +170,7 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
           returnTo: `/resume-transaction`,
           authorizationParams: {
             authorization_details: JSON.stringify(authorization_details),
-            scope: 'openid profile read:balance'
+            scope: SCOPE
           },
         });
         return;

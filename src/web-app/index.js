@@ -155,14 +155,14 @@ app.post("/submit-transaction", requiresAuth(), async (req, res, next) => {
       const code = err.response.data.code;
       if (statusCode === 403 && code === 'insufficient_authorization_details') {
         const transaction_id = err.response.data.transaction_id;
-        const authorization_details = [{
+        const authorization_details = {
           type: 'payment_initiation',
           transaction_amount,
           transaction_currency: "USD",
           transaction_id,
           account: 'AB10458203746523457',
           description,
-        }];
+        };
         req.session.pendingTransaction = {
           transaction_amount,
           transaction_id,

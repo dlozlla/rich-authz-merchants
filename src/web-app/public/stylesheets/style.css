@@ -170,6 +170,7 @@ li.logo img {
 
 .error-message {
   color: red;
+  font-size: 2em;
 }
 
 .notice-message {

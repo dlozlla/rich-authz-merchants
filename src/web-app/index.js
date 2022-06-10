@@ -86,7 +86,7 @@ app.get("/prepare-transaction", requiresAuth(), async (req, res) => {
   const error = req.query && req.query.error;
   if (error === 'access_denied') {
     // The AS said we are not allowed to do this transaction, tell the end-user!
-    errorMessage = 'You are not authorized to make this transaction. Perhaps you can try with a smaller transaction amount?';
+    errorMessage = `Access denied: ${req.query.error_description}`;
     delete req.session.pendingTransaction;
   }
 
@@ -219,9 +219,10 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
   if (err.error === 'access_denied') {
+    logger.info(`Error: ${err}`);
     // Crude way of handling the unauthorized error from the authorization server.
     // We must redirect back to the /prepare-transaction page, but be sure to capture that the transaction was denied.
-    res.redirect('/prepare-transaction?error=access_denied');
+    res.redirect(`/prepare-transaction?error=${err.error}&error_description=${err.error_description}`);
     return;
   }
   res.locals.message = err.message;

@@ -31,3 +31,8 @@ block content
             input(type='submit', value='Purchase')          
         th 
           input(type='submit', value='Explore')
+    br
+    br
+    if errorMessage
+        p(class="error-message")=errorMessage
+    p
